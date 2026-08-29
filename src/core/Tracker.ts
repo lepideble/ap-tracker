@@ -63,22 +63,24 @@ export class Tracker {
     }
 
     get regions(): TrackerRegion[]|null {
-        const regions = games[this.#game]?.regions;
+        const game = games[this.#game];
 
-        if (!regions) {
+        if (!game?.regions) {
             return null;
         }
 
-        return Object.entries(regions).map(([name, region]) => {
-            const locations = region.getLocations(this.#locations);
-            const checked = combine(locations.map((location) => location.checked), (checked) => checked.filter((checked) => checked).length);
+        const regions = Object.entries(game?.regions).map(([name, region]) => new TrackerRegion(
+            name,
+            region.getLocations(this.#locations),
+        ));
 
-            return {
-                name,
-                locations,
-                checked,
-            }
-        });
+        const remaining = this.#locations.filter((location) => regions.every((region) => !region.locations.includes(location)));
+
+        if (remaining.length) {
+            regions.push(new TrackerRegion('Unknown', remaining));
+        }
+
+        return regions;
     }
 }
 
@@ -108,10 +110,28 @@ export namespace TrackerLocation {
     export type Status = typeof TRACKER_LOCATION_STATUSES[keyof typeof TRACKER_LOCATION_STATUSES];
 }
 
-export interface TrackerRegion {
-    name: string;
-    locations: TrackerLocation[];
-    checked: Reactive<number>;
+export class TrackerRegion {
+    #name: string;
+    #locations: TrackerLocation[];
+    #checked: Reactive<number>;
+
+    constructor(name: string, locations: TrackerLocation[]) {
+        this.#name = name;
+        this.#locations = locations;
+        this.#checked = combine(locations.map((location) => location.checked), (checked) => checked.filter((checked) => checked).length);
+    }
+
+    get name() {
+        return this.#name;
+    }
+
+    get locations() {
+        return this.#locations;
+    }
+
+    get checked() {
+        return this.#checked;
+    }
 }
 
 export class TrackerManager {
