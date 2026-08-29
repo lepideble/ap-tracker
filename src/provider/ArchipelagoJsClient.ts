@@ -30,6 +30,8 @@ export default class ArchipelagoJsClient implements Client {
     async connect(slot: Slot) {
         const client = new ArchieplagoJs();
 
+        await this.#setUpCache(client);
+
         const [hints, setHints] = makeState<Hint[]>([]);
 
         client.items.on('hintsInitialized', (received) => {
@@ -84,4 +86,37 @@ export default class ArchipelagoJsClient implements Client {
         };
     }
 
+    async #setUpCache(client: ArchieplagoJs): Promise<void> {
+        try {
+            const cache = await window.caches.open('datapackage');
+
+            client.package.setCache({
+                async getPackage(game, checksum) {
+                    try {
+                        const response = await cache.match(`/${game}/${checksum}`);
+
+                        if (response) {
+                            return response.json();
+                        }
+                    } catch (error) {
+                        console.warn('Error retrieving datapackage from cache', error)
+                    }
+
+                    return null;
+                },
+            });
+
+            client.socket.on('dataPackage', (packet) => {
+                Object.entries(packet.data.games).forEach(async ([game, data]) => {
+                    cache
+                        .put(`/${game}/${data.checksum}`, new Response(JSON.stringify(data)))
+                        .catch((error) => {
+                            console.warn('Error saving datapackage in cache', error)
+                        });
+                });
+            });
+        } catch (error) {
+            console.warn('Failed to setup datapackage cache', error);
+        }
+    }
 }
