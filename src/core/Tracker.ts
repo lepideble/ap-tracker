@@ -1,5 +1,5 @@
-import type { Connection, ConnectionManger, Player } from './Connection';
-import { combine, makeState, type Reactive } from './Reactive';
+import type { Connection, ConnectionManger, Hint, Player } from './Connection';
+import { combine, compute, makeState, type Reactive } from './Reactive';
 import type { Slot } from './Slot';
 import games from './games';
 
@@ -8,20 +8,16 @@ export class Tracker {
     #locations: TrackerLocation[];
 
     constructor(connection: Connection) {
-        const updateItem: Record<number, (item: TrackerLocation.Item) => void> = {};
+        // Create reactive hint for all locations
+        const hints: Record<number, Reactive<Hint|null>> = {};
+        const setHints: Record<number, (hint: Hint|null) => void> = {};
 
-        this.#locations = connection.locations.map((location) => {
-            const [item, setItem] = makeState<TrackerLocation.Item|null>(null);
+        for (const location of connection.locations) {
+            const [hint, setHint] = makeState<Hint|null>(null);
 
-            updateItem[location.id] = setItem;
-
-            return {
-                id: location.id,
-                name: location.name,
-                item,
-                checked: location.checked,
-            };
-        });
+            hints[location.id] = hint;
+            setHints[location.id] = setHint;
+        }
 
         connection.hints.subscribe(() => {
             for (const hint of connection.hints.value) {
@@ -29,17 +25,35 @@ export class Tracker {
                     continue;
                 }
 
-                const setItem = updateItem[hint.location.id];
+                const setHint = setHints[hint.location.id];
 
-                if (!setItem) {
+                if (!setHint) {
                     console.error('Received hint for an unknown location', hint);
 
                     continue;
                 }
 
-                setItem(hint.item);
+                setHint(hint);
             }
         });
+
+        this.#locations = connection.locations.map((location) => ({
+            id: location.id,
+            name: location.name,
+            item: compute((hint) => hint?.item ?? null, [hints[location.id]]),
+            checked: location.checked,
+            status: compute((hint, checked) => {
+                if (checked) {
+                    return TRACKER_LOCATION_STATUSES.Found;
+                }
+
+                if (hint) {
+                    return hint.status;
+                }
+
+                return TRACKER_LOCATION_STATUSES.NotFound;
+            }, [hints[location.id], location.checked]),
+        }));
 
         this.#game = connection.game;
     }
@@ -68,19 +82,30 @@ export class Tracker {
     }
 }
 
+export const TRACKER_LOCATION_STATUSES = {
+    NotFound: 0,
+    NoPriority: 10,
+    Avoid: 20,
+    Priority: 30,
+    Found: 40,
+} as const;
+
 export interface TrackerLocation {
     id: number;
     name: string;
     item: Reactive<TrackerLocation.Item|null>;
     checked: Reactive<boolean>;
+    status: Reactive<TrackerLocation.Status>;
 }
 
-namespace TrackerLocation {
+export namespace TrackerLocation {
     export interface Item {
         id: number;
         name: string;
         player: Player;
     }
+
+    export type Status = typeof TRACKER_LOCATION_STATUSES[keyof typeof TRACKER_LOCATION_STATUSES];
 }
 
 export interface TrackerRegion {

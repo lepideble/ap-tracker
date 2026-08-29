@@ -1,7 +1,7 @@
 import { Client as ArchieplagoJs, type Hint as ArchiepalgoJsHint } from 'archipelago.js';
 
 import type { Client, Hint, Location } from '../core/Connection';
-import { makeState } from '../core/Reactive';
+import { makeState, type Reactive } from '../core/Reactive';
 import type { Slot } from '../core/Slot';
 
 const formatHint = (hint: ArchiepalgoJsHint) => ({
@@ -24,6 +24,7 @@ const formatHint = (hint: ArchiepalgoJsHint) => ({
             name: hint.item.receiver.name,
         },
     },
+    status: hint.status,
 });
 
 export default class ArchipelagoJsClient implements Client {
@@ -32,18 +33,7 @@ export default class ArchipelagoJsClient implements Client {
 
         await this.#setUpCache(client);
 
-        const [hints, setHints] = makeState<Hint[]>([]);
-
-        client.items.on('hintsInitialized', (received) => {
-            setHints(received.map(formatHint));
-        });
-
-        client.items.on('hintReceived', (received) => {
-            setHints([
-                ...hints.value,
-                formatHint(received),
-            ]);
-        });
+        const hints = await this.#setUpHints(client);
 
         await client.login(slot.host, slot.name, undefined, slot.password ? { password: slot.password } : {});
 
@@ -118,5 +108,24 @@ export default class ArchipelagoJsClient implements Client {
         } catch (error) {
             console.warn('Failed to setup datapackage cache', error);
         }
+    }
+
+    async #setUpHints(client: ArchieplagoJs): Promise<Reactive<Hint[]>> {
+        const [hints, setHints] = makeState<Hint[]>([]);
+
+        client.items.on('hintsInitialized', (received) => {
+            setHints(received.map(formatHint));
+        });
+
+        client.items.on('hintReceived', (received) => {
+            setHints([
+                ...hints.value,
+                formatHint(received),
+            ]);
+        });
+
+        // TODO: Handle hint status change
+
+        return hints;
     }
 }

@@ -26,7 +26,16 @@ export interface Hint {
         trap: boolean;
         player: Player;
     };
+    status: typeof HINT_STATUSES[keyof typeof HINT_STATUSES];
 }
+
+export const HINT_STATUSES = {
+    Unspecified: 0,
+    NoPriority: 10,
+    Avoid: 20,
+    Priority: 30,
+    Found: 40,
+} as const;
 
 export interface Connection {
     game: string;
