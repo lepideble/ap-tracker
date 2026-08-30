@@ -8,7 +8,7 @@ import useReactive from '../components/useReactive';
 import type { Core } from '../core';
 import Tracker from './Tracker';
 import AddSlotModal from './AddSlotModal';
-import { Menu, MenuItem, navigate, SideBar, SideBarContent, SideBarFooter, useLocation } from '../components';
+import { Loader, Menu, MenuItem, navigate, SideBar, SideBarContent, SideBarFooter, useLocation } from '../components';
 
 export interface AppProps {
     core: Core;
@@ -40,7 +40,7 @@ export default function App({ core }: AppProps) {
                 </SideBarFooter>
             </SideBar>
             <Main>
-                <Suspense fallback="Loading">
+                <Suspense fallback={<Loader />}>
                     {currentSlot ? <Tracker core={core} slot={currentSlot} /> : null}
                 </Suspense>
             </Main>

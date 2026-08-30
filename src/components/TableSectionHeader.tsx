@@ -5,6 +5,10 @@ import { css } from '@linaria/core';
 const className = css`
     cursor: pointer;
 
+    & > th:first-child {
+        padding-left: .2rem;
+    }
+
     & > th:first-child::before {
         content: '▸';
         display: inline-block;

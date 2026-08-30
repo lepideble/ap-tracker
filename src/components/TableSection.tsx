@@ -19,7 +19,7 @@ const className = css`
     }
 
     td:first-child {
-        padding-left: 2rem;
+        padding-left: 1.2rem;
     }
 
     tr {
