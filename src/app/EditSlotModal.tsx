@@ -6,35 +6,37 @@ import Form from '../components/Form';
 import Stack from '../components/Stack';
 import type { SlotManager } from '../core';
 
-export interface AddSlotModalProps {
+export interface EditSlotModalProps {
+    id: string;
     slots: SlotManager;
 }
 
-export default function AddSlotModal({ slots }: AddSlotModalProps) {
+export default function EditSlotModal({ id, slots }: EditSlotModalProps) {
+    const initialData = slots.value.find((slot) => slot.id === id);
     const action = useCallback(({ label, host, slot, password }: Record<string, any>) => {
-        slots.add(label || null, host, slot, password || null)
-    }, [slots]);
+        slots.update(id, label || null, host, slot, password || null)
+    }, [id, slots]);
 
     return (
         <Form action={action} onSuccess={closeModal}>
             <Stack>
                 <label>
                     Name (only for display)
-                    <input name="label" />
+                    <input defaultValue={initialData?.label ?? ''} name="label" />
                 </label>
                 <label>
                     Host and Port
-                    <input name="host" />
+                    <input defaultValue={initialData?.host ?? ''} name="host" />
                 </label>
                 <label>
                     Slot Name
-                    <input name="slot" />
+                    <input defaultValue={initialData?.name ?? ''} name="slot" />
                 </label>
                 <label>
                     Password (leave empty for no password)
-                    <input name="password" type="password" />
+                    <input defaultValue={initialData?.password ?? ''} name="password" type="password" />
                 </label>
-                <Button action="submit">Add</Button>
+                <Button action="submit">Save</Button>
             </Stack>
         </Form>
     )

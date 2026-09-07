@@ -1,7 +1,10 @@
+export { default as Button } from './Button';
+export { default as IconButton } from './IconButton';
+export { default as List, ListItem } from './List';
 export { default as Loader } from './Loader';
 export { default as Menu, MenuItem } from './Menu';
 export { default as navigate } from './location/navigate';
-export { default as SideBar, SideBarContent, SideBarFooter } from './SideBar';
+export { default as SideBar, SideBarContent, SideBarFooter, SideBarHeader } from './SideBar';
 export { default as TableSection } from './TableSection';
 export { default as TableSectionHeader } from './TableSectionHeader';
 export { default as useLocation } from './location/useLocation';

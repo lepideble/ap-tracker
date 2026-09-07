@@ -27,43 +27,41 @@ export function makeState<T>(initial: T): [Reactive<T>, (value: T) => void] {
     const update = (value: T) => {
         reactive.value = value;
 
-        for (const subscriber of subscribers) {
-            subscriber();
-        }
+        subscribers.forEach((subscriber) => subscriber());
     }
 
     return [reactive, update];
 }
 
-export function makeLazy<T>(getValue: () => T, subscribe: Subscribe): Reactive<T> {
-    const subscribers: Callback[] = [];
-
-    let value: T;
+export function compute<A1, R>(mapper: (arg1: A1) => R, values: [Reactive<A1>]): Reactive<R>;
+export function compute<A1, A2, R>(mapper: (arg1: A1, arg2: A2) => R, values: [Reactive<A1>, Reactive<A2>]): Reactive<R>;
+export function compute(mapper: (...values: any[]) => any, values: Reactive<any>[]): Reactive<any> {
+    let value: any;
     let stale = true;
+
+    let subscribers: Callback[] = [];
+    let subscriptions: Subscriber[]|null = null;
 
     const trigger: Callback = () => {
         stale = true;
-        for (const subscriber of subscribers) {
-            subscriber();
-        }
-    }
 
-    let subscriber: Subscriber|null = null;
+        subscribers.forEach((subscriber) => subscriber());
+    };
 
-    const reactive = {
+    return {
         get value() {
             if (stale) {
-                value = getValue();
+                value = mapper(...values.map((value) => value.value));
                 stale = false;
             }
 
             return value;
         },
-        subscribe: (callback: Callback) => {
+        subscribe(callback: Callback) {
             subscribers.push(callback);
 
-            if (!subscriber) {
-                subscriber = subscribe(trigger)
+            if (subscriptions === null) {
+                subscriptions = values.map((value) => value.subscribe(trigger));
             }
 
             return () => {
@@ -72,32 +70,11 @@ export function makeLazy<T>(getValue: () => T, subscribe: Subscribe): Reactive<T
                     subscribers.splice(index, 1);
                 }
 
-                if (subscribers.length === 0 && subscriber) {
-                    subscriber()
-                    subscriber = null;
+                if (subscribers.length === 0 && subscriptions !== null) {
+                    subscriptions.forEach((subscription) => subscription());
+                    subscriptions = null;
                 }
             }
-        },
-    };
-
-    return reactive;
-}
-
-export function compute<A1, R>(mapper: (arg1: A1) => R, values: [Reactive<A1>]): Reactive<R>;
-export function compute<A1, A2, R>(mapper: (arg1: A1, arg2: A2) => R, values: [Reactive<A1>, Reactive<A2>]): Reactive<R>;
-export function compute(mapper: (...values: any[]) => any, values: Reactive<any>[]): Reactive<any> {
-    return {
-        get value() {
-            return mapper(...values.map((value) => value.value));
-        },
-        subscribe(callback: Callback) {
-            const unsubscribes = values.map((value) => value.subscribe(callback));
-
-            return () => {
-                unsubscribes.forEach((unsubscribe) => {
-                    unsubscribe();
-                });
-            };
         },
     }
 }
@@ -108,12 +85,10 @@ export function combine<T, U>(values: Reactive<T>[], mapper: (values: T[]) => U)
             return mapper(values.map((value) => value.value));
         },
         subscribe(callback: Callback) {
-            const unsubscribes = values.map((value) => value.subscribe(callback));
+            const subscriptions = values.map((value) => value.subscribe(callback));
 
             return () => {
-                unsubscribes.forEach((unsubscribe) => {
-                    unsubscribe();
-                });
+                subscriptions.forEach((subscription) => subscription());
             };
         },
     }
