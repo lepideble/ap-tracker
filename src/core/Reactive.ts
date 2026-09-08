@@ -62,6 +62,7 @@ export function compute(mapper: (...values: any[]) => any, values: Reactive<any>
 
             if (subscriptions === null) {
                 subscriptions = values.map((value) => value.subscribe(trigger));
+                stale = true;
             }
 
             return () => {
