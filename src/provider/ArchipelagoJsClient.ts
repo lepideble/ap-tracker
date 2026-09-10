@@ -36,6 +36,7 @@ export default class ArchipelagoJsClient implements Client {
         const hints = await this.#setUpHints(client);
 
         await client.login(slot.host, slot.name, undefined, slot.password ? { password: slot.password } : {});
+        await client.items.wait('hintsInitialized');
 
         const locations: Location[] = [];
 

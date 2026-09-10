@@ -19,7 +19,7 @@ export class Tracker {
             setHints[location.id] = setHint;
         }
 
-        connection.hints.subscribe(() => {
+        const updateHints = () => {
             for (const hint of connection.hints.value) {
                 if (hint.location.player.id !== connection.player.id) {
                     continue;
@@ -35,7 +35,10 @@ export class Tracker {
 
                 setHint(hint);
             }
-        });
+        };
+
+        updateHints();
+        connection.hints.subscribe(updateHints);
 
         this.#locations = connection.locations.map((location) => ({
             id: location.id,
@@ -92,6 +95,12 @@ export const TRACKER_LOCATION_STATUSES = {
     Found: 40,
 } as const;
 
+const TRACKER_LOCATION_USEFUL_STATUSES: TrackerLocation.Status[] = [
+    TRACKER_LOCATION_STATUSES.Found,
+    TRACKER_LOCATION_STATUSES.Priority,
+    TRACKER_LOCATION_STATUSES.NotFound,
+];
+
 export interface TrackerLocation {
     id: number;
     name: string;
@@ -114,11 +123,13 @@ export class TrackerRegion {
     #name: string;
     #locations: TrackerLocation[];
     #checked: Reactive<number>;
+    #useful: Reactive<number>;
 
     constructor(name: string, locations: TrackerLocation[]) {
         this.#name = name;
         this.#locations = locations;
         this.#checked = combine(locations.map((location) => location.checked), (checked) => checked.filter((checked) => checked).length);
+        this.#useful = combine(locations.map((location) => location.status), (statuses) => statuses.filter((status) => TRACKER_LOCATION_USEFUL_STATUSES.includes(status)).length);
     }
 
     get name() {
@@ -131,6 +142,10 @@ export class TrackerRegion {
 
     get checked() {
         return this.#checked;
+    }
+
+    get useful() {
+        return this.#useful;
     }
 }
 

@@ -28,7 +28,7 @@ export default function Tracker({ core, slot }: TrackerProps) {
             {tracker.regions ? (
                 <>
                     {tracker.regions.map((region) => (
-                        <TableSection key={region.name} defaultOpen={region.locations.some((location) => !location.checked.value)}>
+                        <TableSection key={region.name} defaultOpen={region.checked.value < region.useful.value}>
                             <TrackerRegionHeader region={region} />
                             {region.locations.map((location) => <TrackerRow key={location.id} location={location} />)}
                         </TableSection>
