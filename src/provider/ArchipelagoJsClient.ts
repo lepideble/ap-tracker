@@ -1,4 +1,4 @@
-import { Client as ArchieplagoJs, type Hint as ArchiepalgoJsHint } from 'archipelago.js';
+import { Client as ArchieplagoJs, Hint as ArchiepalgoJsHint, type NetworkHint } from 'archipelago.js';
 
 import type { Client, Hint, Location } from '../core/Connection';
 import { makeState, type Reactive } from '../core/Reactive';
@@ -33,10 +33,11 @@ export default class ArchipelagoJsClient implements Client {
 
         await this.#setUpCache(client);
 
-        const hints = await this.#setUpHints(client);
+        const [hints, hintsReady] = await this.#setUpHints(client);
 
         await client.login(slot.host, slot.name, undefined, slot.password ? { password: slot.password } : {});
-        await client.items.wait('hintsInitialized');
+
+        await hintsReady;
 
         const locations: Location[] = [];
 
@@ -111,22 +112,26 @@ export default class ArchipelagoJsClient implements Client {
         }
     }
 
-    async #setUpHints(client: ArchieplagoJs): Promise<Reactive<Hint[]>> {
+    async #setUpHints(client: ArchieplagoJs): Promise<[Reactive<Hint[]>, Promise<void>]> {
         const [hints, setHints] = makeState<Hint[]>([]);
+        const { promise: hintsReady, resolve: resolveHintsReady } = Promise.withResolvers<void>();
 
-        client.items.on('hintsInitialized', (received) => {
-            setHints(received.map(formatHint));
+        client.socket.on('connected',  () => {
+            const storageKey = `_read_hints_${client.players.self.team}_${client.players.self.slot}`;
+
+            client.storage
+                .notify([storageKey], (_, data) => {
+                    setHints((data as NetworkHint[]).map((hint) => formatHint(new ArchiepalgoJsHint(client, hint))))
+                })
+                .then((data) => {
+                    setHints((data[storageKey] as NetworkHint[]).map((hint) => formatHint(new ArchiepalgoJsHint(client, hint))));
+                    resolveHintsReady();
+                })
+                .catch((error) => {
+                    console.error('Error updating hints', error);
+                });
         });
 
-        client.items.on('hintReceived', (received) => {
-            setHints([
-                ...hints.value,
-                formatHint(received),
-            ]);
-        });
-
-        // TODO: Handle hint status change
-
-        return hints;
+        return [hints, hintsReady];
     }
 }
