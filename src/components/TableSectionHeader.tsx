@@ -1,6 +1,6 @@
+import { css } from '@linaria/core';
 import type { ReactNode } from 'react';
 import { useToggleOpen } from './TableSection';
-import { css } from '@linaria/core';
 
 const className = css`
     cursor: pointer;

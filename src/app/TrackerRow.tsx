@@ -1,5 +1,5 @@
-import { TRACKER_LOCATION_STATUSES, type TrackerLocation } from '../core/Tracker';
-import useReactive from '../components/useReactive';
+import { useReactive } from '#components';
+import { TRACKER_LOCATION_STATUSES, type TrackerLocation } from '#core';
 
 const Status = ({ location }: { location: TrackerLocation }) => {
     const value = useReactive(location.status);

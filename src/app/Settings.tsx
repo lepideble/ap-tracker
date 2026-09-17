@@ -1,8 +1,7 @@
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { openModal } from '../actions';
-import { Button, IconButton, List, ListItem } from '../components';
-import useReactive from '../components/useReactive';
-import type { Core } from '../core';
+import { openModal } from '#actions';
+import { Button, IconButton, List, ListItem, useReactive } from '#components';
+import { type Core } from '#core';
 import AddSlotModal from './AddSlotModal';
 import EditSlotModal from './EditSlotModal';
 

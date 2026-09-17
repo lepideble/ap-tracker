@@ -1,5 +1,5 @@
 import { useCallback, type ReactNode, type SubmitEvent } from 'react';
-import { closeModal } from './Modal';
+import { closeModal } from '#actions';
 
 export interface FormProps {
     children: ReactNode;

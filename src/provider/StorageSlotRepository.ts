@@ -1,5 +1,5 @@
-import { type Callback } from '../core/Reactive';
-import type { SlotData, SlotRepository } from '../core/Slot';
+import { type SlotData, type SlotRepository } from '#core';
+import { type Callback } from '#lib/reactive';
 
 export default class StorageSlotRepository implements SlotRepository {
     #storage: Storage;

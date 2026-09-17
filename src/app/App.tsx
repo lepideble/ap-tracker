@@ -1,12 +1,8 @@
 import { Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { Suspense, useMemo } from 'react';
-import Button from '../components/Button';
-import Main from '../components/Main';
-import Root from '../components/Root';
-import { openModal } from '../components/Modal';
-import useReactive from '../components/useReactive';
-import { IconButton, Loader, Menu, MenuItem, navigate, SideBar, SideBarContent, SideBarHeader, useLocation } from '../components';
-import type { Core } from '../core';
+import { navigate, openModal } from '#actions';
+import { Button, IconButton, Loader, Main, Menu, MenuItem, Root, SideBar, SideBarContent, SideBarHeader, useLocation, useReactive } from '#components';
+import { type Core } from '#core';
 import Tracker from './Tracker';
 import AddSlotModal from './AddSlotModal';
 import Settings from './Settings';

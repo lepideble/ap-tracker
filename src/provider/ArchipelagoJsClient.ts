@@ -1,8 +1,6 @@
 import { Client as ArchieplagoJs, Hint as ArchiepalgoJsHint, type NetworkHint } from 'archipelago.js';
-
-import type { Client, Hint, Location } from '../core/Connection';
-import { makeState, type Reactive } from '../core/Reactive';
-import type { Slot } from '../core/Slot';
+import { type Client, type Location, type Hint, type Slot } from '#core';
+import { makeState, type Reactive } from '#lib/reactive';
 
 const formatHint = (hint: ArchiepalgoJsHint) => ({
     location: {

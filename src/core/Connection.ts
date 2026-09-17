@@ -1,4 +1,4 @@
-import type { Reactive } from './Reactive';
+import type { Reactive } from '#lib/reactive';
 import type { Slot } from './Slot';
 
 export interface Player {

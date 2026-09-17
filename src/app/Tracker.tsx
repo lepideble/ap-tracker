@@ -1,9 +1,6 @@
 import { use } from 'react';
-
-import Table from '../components/Table';
-import TableSection from '../components/TableSection';
-import type { Core } from '../core';
-import type { Slot } from '../core/Slot';
+import { Table, TableSection } from '#components';
+import { type Core, type Slot } from '#core';
 import TrackerRegionHeader from './TrackerRegionHeader';
 import TrackerRow from './TrackerRow';
 

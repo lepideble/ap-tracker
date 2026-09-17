@@ -1,6 +1,6 @@
 import { css } from '@linaria/core';
 import { type ReactNode } from 'react';
-import getProps, { type Action } from './action/getProps';
+import { type Action, getProps } from '#actions';
 
 const className = css`
     cursor: pointer;

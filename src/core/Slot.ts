@@ -1,4 +1,4 @@
-import { compute, type Callback, type Reactive, type Subscriber } from './Reactive';
+import { compute, type Callback, type Reactive, type Subscriber } from '#lib/reactive';
 
 export interface Slot {
     id: string;

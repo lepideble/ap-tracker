@@ -1,6 +1,5 @@
-import { TableSectionHeader } from '../components';
-import useReactive from '../components/useReactive';
-import type { TrackerRegion } from '../core/Tracker';
+import { TableSectionHeader, useReactive } from '#components';
+import { type TrackerRegion } from '#core';
 
 export interface TrackerRegionHeaderProps {
     region: TrackerRegion;

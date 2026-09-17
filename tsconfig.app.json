@@ -20,7 +20,14 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "erasableSyntaxOnly": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+
+        "paths": {
+            "#actions": ["./src/actions"],
+            "#components": ["./src/components"],
+            "#core": ["./src/core"],
+            "#lib/*": ["./src/lib/*"]
+        },
     },
     "include": ["src"]
 }

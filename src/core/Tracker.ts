@@ -1,5 +1,5 @@
+import { combine, compute, makeState, type Reactive } from '#lib/reactive';
 import type { Connection, ConnectionManger, Hint, Player } from './Connection';
-import { combine, compute, makeState, type Reactive } from './Reactive';
 import type { Slot } from './Slot';
 import games from './games';
 

@@ -1,6 +1,7 @@
 import { useRef, type ButtonHTMLAttributes, type ComponentClass, type FunctionComponent, type ReactNode } from 'react';
-import { Navigate } from '../location/navigate';
-import { OpenModal } from '../Modal';
+import { OpenModal } from './modal';
+import { Navigate } from './navigate';
+import { type Action } from './types';
 
 interface OpenModalButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     modal: ReactNode
@@ -16,8 +17,6 @@ function OpenModalButton({ modal, ...props }: OpenModalButtonProps) {
         </>
     );
 }
-
-export type Action = Navigate|OpenModal|'submit'|(() => void);
 
 export default function getProps(action: Action): [FunctionComponent<any> | ComponentClass<any> | string, { [key: string]: any}] {
     if (action instanceof Navigate) {

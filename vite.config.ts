@@ -4,4 +4,7 @@ import wyw from '@wyw-in-js/vite';
 
 export default defineConfig({
     plugins: [react(), wyw()],
+    resolve: {
+        tsconfigPaths: true,
+    },
 });

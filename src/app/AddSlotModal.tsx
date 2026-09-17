@@ -1,10 +1,7 @@
 import { useCallback } from 'react';
-
-import { closeModal } from '../actions';
-import { Button } from '../components';
-import Form from '../components/Form';
-import Stack from '../components/Stack';
-import type { SlotManager } from '../core';
+import { closeModal } from '#actions';
+import { Button, Form, Stack } from '#components';
+import { type SlotManager } from '#core';
 
 export interface AddSlotModalProps {
     slots: SlotManager;
