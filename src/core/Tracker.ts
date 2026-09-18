@@ -1,13 +1,13 @@
 import { combine, compute, makeState, type Reactive } from '#lib/reactive';
 import type { Connection, ConnectionManger, Hint, Player } from './Connection';
 import type { Slot } from './Slot';
-import games from './games';
+import games, { type GameData } from './games';
 
 export class Tracker {
-    #game: string;
+    #gameData: GameData|null;
     #locations: TrackerLocation[];
 
-    constructor(connection: Connection) {
+    constructor(connection: Connection, gameData: GameData|null) {
         // Create reactive hint for all locations
         const hints: Record<number, Reactive<Hint|null>> = {};
         const setHints: Record<number, (hint: Hint|null) => void> = {};
@@ -58,7 +58,7 @@ export class Tracker {
             }, [hints[location.id], location.checked]),
         }));
 
-        this.#game = connection.game;
+        this.#gameData = gameData;
     }
 
     get locations(): TrackerLocation[] {
@@ -66,13 +66,11 @@ export class Tracker {
     }
 
     get regions(): TrackerRegion[]|null {
-        const game = games[this.#game];
-
-        if (!game?.regions) {
+        if (!this.#gameData?.regions) {
             return null;
         }
 
-        const regions = Object.entries(game?.regions).map(([name, region]) => new TrackerRegion(
+        const regions = Object.entries(this.#gameData.regions).map(([name, region]) => new TrackerRegion(
             name,
             region.getLocations(this.#locations),
         ));
@@ -160,7 +158,12 @@ export class TrackerManager {
 
     get(slot: Slot): Promise<Tracker> {
         if (!(slot.id in this.#trackers)) {
-            this.#trackers[slot.id] = this.#connections.get(slot).then((connection) => new Tracker(connection));
+            this.#trackers[slot.id] = (async () => {
+                const connection = await this.#connections.get(slot);
+                const gameData = games[connection.game] ? await games[connection.game]() : null;
+
+                return new Tracker(connection, gameData);
+            })();
         }
 
         return this.#trackers[slot.id];
