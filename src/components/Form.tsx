@@ -1,10 +1,18 @@
+import { css } from '@linaria/core';
 import { useCallback, type ReactNode, type SubmitEvent } from 'react';
-import { closeModal } from '#actions';
+import { getHandler, type HandlerAction } from '#actions';
+
+const className = css`
+    padding: .5rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+`;
 
 export interface FormProps {
     children: ReactNode;
     action: (data: Record<string, any>) => void;
-    onSuccess?: typeof closeModal;
+    onSuccess?: HandlerAction;
 }
 
 export default function Form({ action, children, onSuccess }: FormProps) {
@@ -15,10 +23,10 @@ export default function Form({ action, children, onSuccess }: FormProps) {
 
         action(Object.fromEntries(formData.entries()));
 
-        if (onSuccess === closeModal) {
-            event.target.closest('dialog')?.close()
+        if (onSuccess) {
+            getHandler(onSuccess)(event);
         }
     }, [action, onSuccess]);
 
-    return <form onSubmit={onSubmit}>{children}</form>
+    return <form className={className} onSubmit={onSubmit}>{children}</form>
 }

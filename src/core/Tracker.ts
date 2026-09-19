@@ -6,6 +6,7 @@ import games, { type GameData } from './games';
 export class Tracker {
     #gameData: GameData|null;
     #locations: TrackerLocation[];
+    #items: TrackerItem[];
 
     constructor(connection: Connection, gameData: GameData|null) {
         // Create reactive hint for all locations
@@ -59,6 +60,40 @@ export class Tracker {
         }));
 
         this.#gameData = gameData;
+
+        this.#items = this.#setUpItems(connection)
+    }
+
+    #setUpItems(connection: Connection): TrackerItem[] {
+        const counts: Record<string, Reactive<number>> = {};
+        const setCounts: Record<string, (count: number) => void> = {};
+
+        for (const itemType of connection.itemTypes) {
+            const [count, setCount] = makeState<number>(0);
+
+            counts[itemType] = count;
+            setCounts[itemType] = setCount;
+        }
+
+        const updateCounts = () => {
+            const counts: Record<string, number> = {};
+
+            for (const item of connection.items.value) {
+                counts[item.name] = (counts[item.name] ?? 0) + 1;
+            }
+
+            for (const [name, count] of Object.entries(counts)) {
+                setCounts[name](count);
+            }
+        };
+
+        updateCounts();
+        connection.items.subscribe(updateCounts);
+
+        return connection.itemTypes.toSorted((a, b) => a.localeCompare(b)).map((name) => ({
+            name,
+            count: counts[name],
+        }));
     }
 
     get locations(): TrackerLocation[] {
@@ -82,6 +117,10 @@ export class Tracker {
         }
 
         return regions;
+    }
+
+    get items(): TrackerItem[] {
+        return this.#items;
     }
 }
 
@@ -145,6 +184,11 @@ export class TrackerRegion {
     get useful() {
         return this.#useful;
     }
+}
+
+export interface TrackerItem {
+    name: string;
+    count: Reactive<number>;
 }
 
 export class TrackerManager {

@@ -1,4 +1,4 @@
-export { default as getProps } from './getProps';
+export { default as getHandler, type Action as HandlerAction } from './getHandler';
+export { default as getProps, type Action as PropsAction } from './getProps';
 export { closeModal, openModal } from './modal';
 export { default as navigate } from './navigate';
-export type { Action } from './types';

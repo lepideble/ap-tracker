@@ -1,41 +1,32 @@
-import { use } from 'react';
-import { Table, TableSection } from '#components';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { Suspense } from 'react';
+import { navigate } from '#actions';
+import { Button, Header, IconButton, Loader, Scrollable } from '#components';
 import { type Core, type Slot } from '#core';
-import TrackerRegionHeader from './TrackerRegionHeader';
-import TrackerRow from './TrackerRow';
+import EditSlot from './forms/EditSlot';
+import Items from './Items';
+import Locations from './Locations';
 
 export interface TrackerProps {
     core: Core;
+    path: string;
     slot: Slot;
 }
 
-export default function Tracker({ core, slot }: TrackerProps) {
-    const tracker = use(core.trackers.get(slot));
-
+export default function Tracker({ core, path, slot }: TrackerProps) {
     return (
-        <Table>
-            <thead>
-                <tr>
-                    <th>Location</th>
-                    <th>Item</th>
-                    <th>Receiver</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            {tracker.regions ? (
-                <>
-                    {tracker.regions.map((region) => (
-                        <TableSection key={region.name} defaultOpen={region.checked.value < region.useful.value}>
-                            <TrackerRegionHeader region={region} />
-                            {region.locations.map((location) => <TrackerRow key={location.id} location={location} />)}
-                        </TableSection>
-                    ))}
-                </>
-            ) : (
-                <tbody>
-                    {tracker.locations.map((location) => <TrackerRow key={location.id} location={location} />)}
-                </tbody>
-            )}
-        </Table>
+        <>
+            <Header actions={<IconButton action={navigate(`${slot.id}/settings`)} label="Settings"><Cog6ToothIcon strokeWidth={2} /></IconButton>}>
+                <Button action={navigate(`${slot.id}/locations`)}>Locations</Button>
+                <Button action={navigate(`${slot.id}/items`)}>Items</Button>
+            </Header>
+            <Scrollable>
+                <Suspense fallback={<Loader />}>
+                    {path === '/locations' || !path? <Locations core={core} slot={slot} /> : null}
+                    {path === '/items' ? <Items core={core} slot={slot} /> : null}
+                    {path === '/settings' ? <EditSlot id={slot.id} slots={core.slots} /> : null}
+                </Suspense>
+            </Scrollable>
+        </>
     );
 }

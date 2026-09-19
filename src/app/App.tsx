@@ -1,11 +1,10 @@
-import { Cog6ToothIcon } from '@heroicons/react/24/outline'
-import { Suspense, useMemo } from 'react';
-import { navigate, openModal } from '#actions';
-import { Button, IconButton, Loader, Main, Menu, MenuItem, Root, SideBar, SideBarContent, SideBarHeader, useLocation, useReactive } from '#components';
+import { PlusIcon } from '@heroicons/react/24/outline'
+import { useMemo } from 'react';
+import { navigate } from '#actions';
+import { Header, IconButton, Main, Menu, MenuItem, Root, Scrollable, SideBar, useLocation, useReactive } from '#components';
 import { type Core } from '#core';
+import AddSlot from './forms/AddSlot';
 import Tracker from './Tracker';
-import AddSlotModal from './AddSlotModal';
-import Settings from './Settings';
 
 export interface AppProps {
     core: Core;
@@ -16,35 +15,34 @@ export default function App({ core }: AppProps) {
 
     const location = useLocation();
 
-    const currentSlot = useMemo(() => slots.find(({ id }) => id === location), [slots, location])
+    const currentSlot = useMemo(() => slots.find(({ id }) => location.startsWith(id)), [slots, location]);
 
     return (
         <Root>
             <SideBar>
-                <SideBarHeader>
-                    Slots <IconButton action={navigate('settings')} label="Manage slots"><Cog6ToothIcon /></IconButton>
-                </SideBarHeader>
-                <SideBarContent>
-                    {slots.length ? (
-                        <Menu>
-                            {slots.map((slot) => (
-                                <MenuItem
-                                    key={slot.id}
-                                    action={navigate(slot.id)}
-                                    active={currentSlot === slot}
-                                >{slot.label}</MenuItem>
-                            ))}
-                        </Menu>
-                    ): (
-                        <Button action={openModal(<AddSlotModal slots={core.slots} />)}>Add slot</Button>
-                    )}
-                </SideBarContent>
+                <Header actions={<IconButton action={navigate('add')} label="Add slot"><PlusIcon strokeWidth={2} /></IconButton>}>
+                    Slots
+                </Header>
+                <Scrollable>
+                    <Menu>
+                        {slots.map((slot) => (
+                            <MenuItem key={slot.id} action={navigate(slot.id)} active={currentSlot === slot}>
+                                {slot.label}
+                            </MenuItem>
+                        ))}
+                    </Menu>
+                </Scrollable>
             </SideBar>
             <Main>
-                <Suspense fallback={<Loader />}>
-                    {location.startsWith('settings') ? <Settings core={core} /> : null}
-                    {currentSlot ? <Tracker core={core} slot={currentSlot} /> : null}
-                </Suspense>
+                {location === 'add' || slots.length === 0 ? (
+                    <>
+                        <Header />
+                        <Scrollable>
+                            <AddSlot slots={core.slots} />
+                        </Scrollable>
+                    </>
+                ) : null}
+                {currentSlot ? <Tracker core={core} path={location.slice(currentSlot.id.length)} slot={currentSlot} /> : null}
             </Main>
         </Root>
     );    

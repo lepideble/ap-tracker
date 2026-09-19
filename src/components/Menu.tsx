@@ -1,11 +1,11 @@
 import { css } from '@linaria/core';
 import { styled } from '@linaria/react';
 import { type ReactNode } from 'react';
-import { type Action, getProps } from '#actions';
+import { getProps, type PropsAction } from '#actions';
 
 export default styled.menu`
     margin: 0;
-    padding: 0;
+    padding: 1rem;
 
     display: flex;
     flex-direction: column;
@@ -39,7 +39,7 @@ const componentClassName = css`
 `;
 
 interface MenuItemProps {
-    action: Action;
+    action: PropsAction;
     active?: boolean;
     children: ReactNode;
 }
