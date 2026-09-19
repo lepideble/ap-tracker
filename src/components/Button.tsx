@@ -1,6 +1,6 @@
 import { css } from '@linaria/core';
 import { type ReactNode } from 'react';
-import { type Action, getProps } from '#actions';
+import { getProps, type PropsAction } from '#actions';
 
 const className = css`
     cursor: pointer;
@@ -12,6 +12,8 @@ const className = css`
     background-color: var(--color-background-light);
     text-align: center;
     height: 1.8rem;
+    padding-left: .5rem;
+    padding-right: .5rem;
 
     &:hover {
         background-color: var(--color-background);
@@ -19,7 +21,7 @@ const className = css`
 `;
 
 interface ButtonProps {
-    action: Action;
+    action: PropsAction;
     children: ReactNode;
 }
 

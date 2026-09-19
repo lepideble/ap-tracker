@@ -1,5 +1,5 @@
 import { Client as ArchieplagoJs, Hint as ArchiepalgoJsHint, type NetworkHint } from 'archipelago.js';
-import { type Client, type Location, type Hint, type Slot } from '#core';
+import { type Client, type Item, type Location, type Hint, type Slot } from '#core';
 import { makeState, type Reactive } from '#lib/reactive';
 
 const formatHint = (hint: ArchiepalgoJsHint) => ({
@@ -31,11 +31,12 @@ export default class ArchipelagoJsClient implements Client {
 
         await this.#setUpCache(client);
 
+        const [items, itemsReady] = await this.#setUpItems(client);
         const [hints, hintsReady] = await this.#setUpHints(client);
 
         await client.login(slot.host, slot.name, undefined, slot.password ? { password: slot.password } : {});
 
-        await hintsReady;
+        await Promise.all([itemsReady, hintsReady]);
 
         const locations: Location[] = [];
 
@@ -72,6 +73,8 @@ export default class ArchipelagoJsClient implements Client {
                 name: client.players.self.name,
             },
             locations,
+            items,
+            itemTypes: Object.values(client.package.findPackage(client.game)!.reverseItemTable),
             hints,
         };
     }
@@ -108,6 +111,16 @@ export default class ArchipelagoJsClient implements Client {
         } catch (error) {
             console.warn('Failed to setup datapackage cache', error);
         }
+    }
+
+    async #setUpItems(client: ArchieplagoJs): Promise<[Reactive<Item[]>, Promise<void>]> {
+        const [items, setItems] = makeState<Item[]>([]);
+
+        client.items.on('itemsReceived', () => {
+            setItems(client.items.received);
+        });
+
+        return [items, Promise.resolve()];
     }
 
     async #setUpHints(client: ArchieplagoJs): Promise<[Reactive<Hint[]>, Promise<void>]> {

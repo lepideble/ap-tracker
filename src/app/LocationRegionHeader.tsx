@@ -1,11 +1,11 @@
 import { TableSectionHeader, useReactive } from '#components';
 import { type TrackerRegion } from '#core';
 
-export interface TrackerRegionHeaderProps {
+export interface LocationRegionHeaderProps {
     region: TrackerRegion;
 }
 
-export default function TrackerRegionHeader({ region }: TrackerRegionHeaderProps) {
+export default function LocationRegionHeader({ region }: LocationRegionHeaderProps) {
     const checked = useReactive(region.checked)
     const useful = useReactive(region.useful)
 

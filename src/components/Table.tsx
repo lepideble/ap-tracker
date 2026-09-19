@@ -6,8 +6,6 @@ export default styled.table`
     border-collapse: collapse;
 
     thead th {
-        height: 3rem;
-
         position: sticky;
         top: 0;
 

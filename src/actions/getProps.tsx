@@ -1,7 +1,13 @@
-import { useRef, type ButtonHTMLAttributes, type ComponentClass, type FunctionComponent, type ReactNode } from 'react';
+import { useRef, type ButtonHTMLAttributes, type ComponentClass, type FunctionComponent, type MouseEventHandler, type ReactNode } from 'react';
+import getHandler, { type Action as HandlerAction } from './getHandler';
 import { OpenModal } from './modal';
 import { Navigate } from './navigate';
-import { type Action } from './types';
+
+export type Action = Navigate|OpenModal|'submit'|HandlerAction;
+
+export interface Options {
+    onSuccess?: HandlerAction;
+}
 
 interface OpenModalButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     modal: ReactNode
@@ -18,7 +24,7 @@ function OpenModalButton({ modal, ...props }: OpenModalButtonProps) {
     );
 }
 
-export default function getProps(action: Action): [FunctionComponent<any> | ComponentClass<any> | string, { [key: string]: any}] {
+export default function getProps(action: Action, { onSuccess }: Options = {}): [FunctionComponent<any> | ComponentClass<any> | string, { [key: string]: any}] {
     if (action instanceof Navigate) {
         return ['a', { href: `#${action.to}` }];
     }
@@ -31,5 +37,12 @@ export default function getProps(action: Action): [FunctionComponent<any> | Comp
         return ['button', { type: 'submit' }];
     }
 
-    return ['button', { onClick: action, type: 'button' }];
+    const onClick: MouseEventHandler = (event) => {
+        getHandler(action)(event);
+        if (onSuccess) {
+            getHandler(onSuccess)(event);
+        }
+    }
+
+    return ['button', { onClick, type: 'button' }];
 }

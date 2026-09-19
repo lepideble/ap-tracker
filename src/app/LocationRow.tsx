@@ -23,11 +23,11 @@ const Status = ({ location }: { location: TrackerLocation }) => {
     return null;
 }
 
-export interface TrackerRowProps {
+export interface LocationRowProps {
     location: TrackerLocation;
 }
 
-export default function TrackerRow({  location }: TrackerRowProps) {
+export default function LocationRow({ location }: LocationRowProps) {
     const item = useReactive(location.item);
 
     return (

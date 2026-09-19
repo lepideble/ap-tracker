@@ -1,9 +1,9 @@
-import { type Client, ConnectionManger, type Location, type Hint } from './Connection';
+import { type Client, ConnectionManger, type Hint, type Item, type Location } from './Connection';
 import { type Slot, type SlotData, SlotManager, type SlotRepository } from './Slot';
-import { type TrackerLocation, TRACKER_LOCATION_STATUSES, TrackerManager, type TrackerRegion } from './Tracker';
+import { type TrackerItem, type TrackerLocation, TRACKER_LOCATION_STATUSES, TrackerManager, type TrackerRegion } from './Tracker';
 
 export { TRACKER_LOCATION_STATUSES };
-export type { Client, Location, Hint, Slot, SlotData, SlotManager, SlotRepository, TrackerLocation, TrackerManager, TrackerRegion };
+export type { Client, Hint, Item, Location, Slot, SlotData, SlotManager, SlotRepository, TrackerItem, TrackerLocation, TrackerManager, TrackerRegion };
 
 export interface Core {
     trackers: TrackerManager;

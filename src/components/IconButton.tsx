@@ -1,6 +1,6 @@
 import { css } from '@linaria/core';
 import { type ReactNode } from 'react';
-import { type Action, getProps } from '#actions';
+import { getProps, type HandlerAction, type PropsAction } from '#actions';
 
 const className = css`
     cursor: pointer;
@@ -23,13 +23,14 @@ const className = css`
 `;
 
 interface IconButtonProps {
-    action: Action;
-    label: string;
+    action: PropsAction;
     children: ReactNode;
+    label: string;
+    onSuccess?: HandlerAction;
 }
 
-export default function IconButton({ action, label, children }: IconButtonProps) {
-    const [Component, props] = getProps(action);
+export default function IconButton({ action, children, label, onSuccess }: IconButtonProps) {
+    const [Component, props] = getProps(action, { onSuccess });
 
     return <Component {...props} aria-label={label} className={className} title={label}>{children}</Component>
 }

@@ -12,6 +12,11 @@ export interface Location {
     checked: Reactive<boolean>;
 }
 
+export interface Item {
+    id: number;
+    name: string;
+}
+
 export interface Hint {
     location: {
         id: number;
@@ -41,6 +46,8 @@ export interface Connection {
     game: string;
     player: Player;
     locations: Location[];
+    items: Reactive<Item[]>;
+    itemTypes: string[];
     hints: Reactive<Hint[]>;
 }
 
