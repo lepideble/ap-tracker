@@ -1,4 +1,42 @@
-import type { TrackerLocation } from '../Tracker';
+import { type Connection } from '../Connection';
+import { type TrackerLocation } from '../Tracker';
+
+export const items = (connection: Connection) => ({
+    'Arrow': {
+        bundles: {
+            '10 Arrows': 10,
+            '30 Arrows': 30,
+            '50 Arrows': 50,
+        },
+    },
+    'Bombchu': {
+        bundles: {
+            'Bombchu': 1,
+            '5 Bombchus': 5,
+            '10 Bombchus': 10,
+        },
+    },
+    'Bomb': {
+        bundles: {
+            '5 Bombs': 5,
+            '10 Bombs': 10,
+        },
+    },
+    'Deku Nut': {
+        bundles: {
+            'Deku Nut': 1,
+            '10 Deku Nuts': 10,
+        },
+    },
+    'Heart Container': {
+        bundles: {
+            'Heart Container': 4,
+            'Heart Piece': 1,
+        },
+        parts: 4,
+        start: (connection.slotData['starting_health'] ?? 3) * 4,
+    },
+});
 
 function isEnemyDrop(location: TrackerLocation, enemies: string[]): boolean {
     return enemies.some((enemy) => location.name === `Enemy Drop ${enemy}`);

@@ -1,4 +1,52 @@
-import type { TrackerLocation } from '../Tracker';
+import { type Connection } from '../Connection';
+import { type TrackerLocation } from '../Tracker';
+
+export const items = (connection: Connection) => ({
+    'Arrow': {
+        bundles: {
+            'Arrows (5)': 5,
+            'Arrows (10)': 10,
+        },
+    },
+    'Bombchu': {
+        bundles: {
+            'Bombchus (5)': 5,
+            'Bombchus (10)': 10,
+            'Bombchus (20)': 20,
+        },
+    },
+    'Bomb': {
+        bundles: {
+            'Bombs (5)': 5,
+            'Bombs (10)': 10,
+        },
+    },
+    'Deku Nut': {
+        bundles: {
+            'Deku Nuts (5)': 5,
+            'Deku Nuts (10)': 10,
+        },
+    },
+    'Deku Seed': {
+        bundles: {
+            'Deku Seeds (30)': 30,
+        },
+    },
+    'Deku Stick': {
+        bundles: {
+            'Deku Stick (1)': 1
+        },
+    },
+    'Heart Container': {
+        bundles: {
+            'Heart Container': 4,
+            'Piece of Heart': 1,
+            'Piece of Heart (WINNER)': 1,
+        },
+        parts: 4,
+        start: (connection.slotData['starting_hearts'] ?? 3) * 4,
+    },
+});
 
 export const regions = {
     'Kokiri Forest': {

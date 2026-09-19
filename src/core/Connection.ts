@@ -49,6 +49,7 @@ export interface Connection {
     items: Reactive<Item[]>;
     itemTypes: string[];
     hints: Reactive<Hint[]>;
+    slotData: Record<string, any>;
 }
 
 export interface Client {

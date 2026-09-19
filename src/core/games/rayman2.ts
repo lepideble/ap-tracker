@@ -1,5 +1,14 @@
 import type { TrackerLocation } from '../Tracker';
 
+export const items = () => ({
+    'Lum': {
+        bundles: {
+            'Lum': 1,
+            'Super Lum': 5,
+        },
+    },
+});
+
 export const regions = {
     'The Woods of Light': {
         getLocations(locations: TrackerLocation[]) {

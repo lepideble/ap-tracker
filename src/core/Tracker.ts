@@ -4,11 +4,15 @@ import type { Slot } from './Slot';
 import games, { type GameData } from './games';
 
 export class Tracker {
-    #gameData: GameData|null;
+    #itemsData: ReturnType<NonNullable<GameData['items']>>;
+    #regionsData: NonNullable<GameData['regions']>|null;
     #locations: TrackerLocation[];
     #items: TrackerItem[];
 
     constructor(connection: Connection, gameData: GameData|null) {
+        this.#itemsData = gameData?.items ? gameData.items(connection) : {};
+        this.#regionsData = gameData?.regions ?? null;
+
         // Create reactive hint for all locations
         const hints: Record<number, Reactive<Hint|null>> = {};
         const setHints: Record<number, (hint: Hint|null) => void> = {};
@@ -59,16 +63,26 @@ export class Tracker {
             }, [hints[location.id], location.checked]),
         }));
 
-        this.#gameData = gameData;
-
         this.#items = this.#setUpItems(connection)
     }
 
     #setUpItems(connection: Connection): TrackerItem[] {
+        const bundles: Record<string, [string, number]> = {}
+        for (const [itemName, itemData] of Object.entries(this.#itemsData)) {
+            for (const [bundleName, count] of Object.entries(itemData.bundles ?? {})) {
+                bundles[bundleName] = [itemName, count];
+            }
+        }
+
+        const itemNames = [
+            ...Object.keys(this.#itemsData),
+            ...connection.itemTypes.filter((itemName) => !(itemName in bundles))
+        ].toSorted((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+
         const counts: Record<string, Reactive<number>> = {};
         const setCounts: Record<string, (count: number) => void> = {};
 
-        for (const itemType of connection.itemTypes) {
+        for (const itemType of itemNames) {
             const [count, setCount] = makeState<number>(0);
 
             counts[itemType] = count;
@@ -78,8 +92,17 @@ export class Tracker {
         const updateCounts = () => {
             const counts: Record<string, number> = {};
 
+            for (const [itemName, itemData] of Object.entries(this.#itemsData)) {
+                counts[itemName] = itemData.start ?? 0;
+            }
+
             for (const item of connection.items.value) {
-                counts[item.name] = (counts[item.name] ?? 0) + 1;
+                if (item.name in bundles) {
+                    const [itemName, count] = bundles[item.name];
+                    counts[itemName] = (counts[itemName] ?? 0) + count;
+                } else {
+                    counts[item.name] = (counts[item.name] ?? 0) + 1;
+                }
             }
 
             for (const [name, count] of Object.entries(counts)) {
@@ -90,9 +113,10 @@ export class Tracker {
         updateCounts();
         connection.items.subscribe(updateCounts);
 
-        return connection.itemTypes.toSorted((a, b) => a.localeCompare(b)).map((name) => ({
+        return itemNames.map((name) => ({
             name,
             count: counts[name],
+            parts: this.#itemsData[name]?.parts ?? null,
         }));
     }
 
@@ -101,11 +125,11 @@ export class Tracker {
     }
 
     get regions(): TrackerRegion[]|null {
-        if (!this.#gameData?.regions) {
+        if (!this.#regionsData) {
             return null;
         }
 
-        const regions = Object.entries(this.#gameData.regions).map(([name, region]) => new TrackerRegion(
+        const regions = Object.entries(this.#regionsData).map(([name, region]) => new TrackerRegion(
             name,
             region.getLocations(this.#locations),
         ));
@@ -189,6 +213,7 @@ export class TrackerRegion {
 export interface TrackerItem {
     name: string;
     count: Reactive<number>;
+    parts: 2|4|10|null;
 }
 
 export class TrackerManager {

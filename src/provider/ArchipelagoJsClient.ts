@@ -76,6 +76,7 @@ export default class ArchipelagoJsClient implements Client {
             items,
             itemTypes: Object.values(client.package.findPackage(client.game)!.reverseItemTable),
             hints,
+            slotData: await client.players.self.fetchSlotData(),
         };
     }
 
