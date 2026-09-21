@@ -1,4 +1,5 @@
 import { useRef, type ButtonHTMLAttributes, type ComponentClass, type FunctionComponent, type MouseEventHandler, type ReactNode } from 'react';
+import { Submit } from './form';
 import getHandler, { type Action as HandlerAction } from './getHandler';
 import { OpenModal } from './modal';
 import { Navigate } from './navigate';
@@ -34,7 +35,7 @@ export default function getProps(action: Action, { onSuccess }: Options = {}): [
     }
 
     if (action === 'submit') {
-        return ['button', { type: 'submit' }];
+        return [Submit, {}];
     }
 
     const onClick: MouseEventHandler = (event) => {

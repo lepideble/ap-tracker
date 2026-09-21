@@ -1,7 +1,7 @@
 import { css } from '@linaria/core';
 import { styled } from '@linaria/react';
 import { type ReactNode } from 'react';
-import { getProps, type PropsAction } from '#actions';
+import { Button, type ButtonProps } from '#actions';
 
 export default styled.menu`
     margin: 0;
@@ -31,25 +31,22 @@ const liClassName = css`
     }
 `;
 
-const componentClassName = css`
+const buttonClassName = css`
     color: var(--text);
     text-decoration: none;
     flex: 1;
     padding: 0.1rem;
 `;
 
-interface MenuItemProps {
-    action: PropsAction;
+interface MenuItemProps extends ButtonProps {
     active?: boolean;
     children: ReactNode;
 }
 
-export function MenuItem({ action, active = false, children }: MenuItemProps) {
-    const [Component, props] = getProps(action);
-
+export function MenuItem({ active = false, children, ...props }: MenuItemProps) {
     return (
         <li className={`${liClassName} ${active ? 'active' : ''}`}>
-            <Component {...props} className={componentClassName}>{children}</Component>
+            <Button {...props} className={buttonClassName}>{children}</Button>
         </li>
     );
 }

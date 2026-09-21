@@ -1,4 +1,4 @@
-export { default as getHandler, type Action as HandlerAction } from './getHandler';
-export { default as getProps, type Action as PropsAction } from './getProps';
+export { Button, type ButtonProps } from './button';
+export { Form, type FormProps } from './form';
 export { closeModal, openModal } from './modal';
 export { default as navigate } from './navigate';

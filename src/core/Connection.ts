@@ -1,5 +1,4 @@
 import type { Reactive } from '#lib/reactive';
-import type { Slot } from './Slot';
 
 export interface Player {
     id: number;
@@ -42,6 +41,13 @@ export const HINT_STATUSES = {
     Found: 40,
 } as const;
 
+export interface ConnectionOptions {
+    id: string;
+    host: string;
+    name: string;
+    password: string|null;
+}
+
 export interface Connection {
     game: string;
     player: Player;
@@ -53,7 +59,7 @@ export interface Connection {
 }
 
 export interface Client {
-    connect(slot: Slot): Promise<Connection>
+    connect(options: ConnectionOptions): Promise<Connection>
 }
 
 export class ConnectionManger {
@@ -65,11 +71,19 @@ export class ConnectionManger {
         this.#connections = {};
     }
 
-    get(slot: Slot): Promise<Connection> {
-        if (!(slot.id in this.#connections)) {
-            this.#connections[slot.id] = this.#client.connect(slot);
+    async connect(options: ConnectionOptions): Promise<void> {
+        if (options.id in this.#connections) {
+            delete this.#connections[options.id];
         }
 
-        return this.#connections[slot.id];
+        await this.get(options);
+    }
+
+    get(options: ConnectionOptions): Promise<Connection> {
+        if (!(options.id in this.#connections)) {
+            this.#connections[options.id] = this.#client.connect(options);
+        }
+
+        return this.#connections[options.id];
     }
 }

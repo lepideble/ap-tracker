@@ -1,8 +1,7 @@
-import { css } from '@linaria/core';
-import { type ReactNode } from 'react';
-import { getProps, type PropsAction } from '#actions';
+import { styled } from '@linaria/react';
+import { Button } from '#actions';
 
-const className = css`
+export default styled(Button)`
     cursor: pointer;
     border: 1px var(--color-border) solid;
     border-radius: .5rem;
@@ -19,14 +18,3 @@ const className = css`
         background-color: var(--color-background);
     }
 `;
-
-interface ButtonProps {
-    action: PropsAction;
-    children: ReactNode;
-}
-
-export default function Button({ action, children }: ButtonProps) {
-    const [Component, props] = getProps(action);
-
-    return <Component {...props} className={className}>{children}</Component>
-}

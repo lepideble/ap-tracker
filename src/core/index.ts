@@ -11,8 +11,8 @@ export interface Core {
 }
 
 export function createCore({ client, slotRepository }: { client: Client, slotRepository: SlotRepository }): Core {
-    const slotManager = new SlotManager(slotRepository);
     const connectionManager = new ConnectionManger(client);
+    const slotManager = new SlotManager(slotRepository, connectionManager);
     const trackerManager = new TrackerManager(connectionManager);
 
     return {

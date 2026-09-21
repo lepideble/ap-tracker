@@ -16,7 +16,7 @@ export interface TrackerProps {
 export default function Tracker({ core, path, slot }: TrackerProps) {
     return (
         <>
-            <Header actions={<IconButton action={navigate(`${slot.id}/settings`)} label="Settings"><Cog6ToothIcon strokeWidth={2} /></IconButton>}>
+            <Header actions={<IconButton action={navigate(`${slot.id}/settings`)} icon={<Cog6ToothIcon strokeWidth={2} />} label="Settings" />}>
                 <Button action={navigate(`${slot.id}/locations`)}>Locations</Button>
                 <Button action={navigate(`${slot.id}/items`)}>Items</Button>
             </Header>
