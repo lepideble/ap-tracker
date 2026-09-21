@@ -1,4 +1,4 @@
-import { Client as ArchieplagoJs, Hint as ArchiepalgoJsHint, type NetworkHint } from 'archipelago.js';
+import { Client as ArchieplagoJs, Hint as ArchiepalgoJsHint, type NetworkHint, type ConnectionOptions } from 'archipelago.js';
 import { type Client, type Item, type Location, type Hint, type Slot } from '#core';
 import { makeState, type Reactive } from '#lib/reactive';
 
@@ -34,7 +34,18 @@ export default class ArchipelagoJsClient implements Client {
         const [items, itemsReady] = await this.#setUpItems(client);
         const [hints, hintsReady] = await this.#setUpHints(client);
 
-        await client.login(slot.host, slot.name, undefined, slot.password ? { password: slot.password } : {});
+        let options: ConnectionOptions = {
+            tags: ['Tracker'],
+        };
+
+        if (slot.password) {
+            options = {
+                ...options,
+                password: slot.password,
+            };
+        }
+
+        await client.login(slot.host, slot.name, undefined, options);
 
         await Promise.all([itemsReady, hintsReady]);
 
