@@ -12,7 +12,7 @@ export default styled.menu`
     gap: 0.5rem;
 `
 
-const ulClassName = css`
+const liClassName = css`
     border: 1px var(--color-border) solid;
     border-radius: .5rem;
     font-size: .8rem;
@@ -48,8 +48,8 @@ export function MenuItem({ action, active = false, children }: MenuItemProps) {
     const [Component, props] = getProps(action);
 
     return (
-        <ul className={`${ulClassName} ${active ? 'active' : ''}`}>
+        <li className={`${liClassName} ${active ? 'active' : ''}`}>
             <Component {...props} className={componentClassName}>{children}</Component>
-        </ul>
+        </li>
     );
 }
