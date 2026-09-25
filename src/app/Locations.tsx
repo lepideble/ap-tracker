@@ -1,16 +1,15 @@
 import { use } from 'react';
 import { Table, TableSection } from '#components';
-import { type Core, type Slot } from '#core';
+import { type Slot } from '#core';
 import LocationRegionHeader from './LocationRegionHeader';
 import LocationRow from './LocationRow';
 
 export interface LocationsProps {
-    core: Core;
     slot: Slot;
 }
 
-export default function Locations({ core, slot }: LocationsProps) {
-    const tracker = use(core.trackers.get(slot));
+export default function Locations({ slot }: LocationsProps) {
+    const tracker = use(slot.tracker);
 
     return (
         <Table>

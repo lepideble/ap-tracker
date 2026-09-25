@@ -42,7 +42,6 @@ export const HINT_STATUSES = {
 } as const;
 
 export interface ConnectionOptions {
-    id: string;
     host: string;
     name: string;
     password: string|null;
@@ -56,6 +55,7 @@ export interface Connection {
     itemTypes: string[];
     hints: Reactive<Hint[]>;
     slotData: Record<string, any>;
+    close(): void;
 }
 
 export interface Client {
@@ -64,26 +64,35 @@ export interface Client {
 
 export class ConnectionManger {
     #client: Client;
+    #urls: Record<string, string>;
     #connections: Record<string, Promise<Connection>>;
 
     constructor(client: Client) {
         this.#client = client;
+        this.#urls = {};
         this.#connections = {};
     }
 
-    async connect(options: ConnectionOptions): Promise<void> {
-        if (options.id in this.#connections) {
-            delete this.#connections[options.id];
+    get(id: string, options: ConnectionOptions): Promise<Connection> {
+        const url = this.#url(options);
+
+        if (id in this.#urls && this.#urls[id] !== url) {
+            this.#connections[id]
+                .then((connection) => connection.close())
+                .catch((error) => console.error(error));
+
+            delete this.#connections[id];
         }
 
-        await this.get(options);
+        if (!(id in this.#connections)) {
+            this.#urls[id] = url;
+            this.#connections[id] = this.#client.connect(options);
+        }
+
+        return this.#connections[id];
     }
 
-    get(options: ConnectionOptions): Promise<Connection> {
-        if (!(options.id in this.#connections)) {
-            this.#connections[options.id] = this.#client.connect(options);
-        }
-
-        return this.#connections[options.id];
+    #url({ host, name, password }: ConnectionOptions): string {
+        return `${name}${password ? `:${password}` : ''}@${host}`;
     }
 }

@@ -1,15 +1,14 @@
 import { use } from 'react';
 import { Table } from '#components';
-import { type Core, type Slot } from '#core';
+import { type Slot } from '#core';
 import ItemRow from './ItemRow';
 
 export interface ItemsProps {
-    core: Core;
     slot: Slot;
 }
 
-export default function Items({ core, slot }: ItemsProps) {
-    const tracker = use(core.trackers.get(slot));
+export default function Items({ slot }: ItemsProps) {
+    const tracker = use(slot.tracker);
 
     return (
         <Table>

@@ -22,8 +22,8 @@ export default function Tracker({ core, path, slot }: TrackerProps) {
             </Header>
             <Scrollable>
                 <Suspense fallback={<Loader />}>
-                    {path === '/locations' || !path? <Locations core={core} slot={slot} /> : null}
-                    {path === '/items' ? <Items core={core} slot={slot} /> : null}
+                    {path === '/locations' || !path? <Locations slot={slot} /> : null}
+                    {path === '/items' ? <Items slot={slot} /> : null}
                     {path === '/settings' ? <EditSlot id={slot.id} slots={core.slots} /> : null}
                 </Suspense>
             </Scrollable>

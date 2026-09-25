@@ -1,6 +1,5 @@
 import { combine, compute, makeState, type Reactive } from '#lib/reactive';
-import type { Connection, ConnectionManger, Hint, Player } from './Connection';
-import type { Slot } from './Slot';
+import type { Connection, Hint, Player } from './Connection';
 import games, { type GameData } from './games';
 
 export class Tracker {
@@ -216,30 +215,11 @@ export interface TrackerItem {
     parts: 2|4|10|null;
 }
 
-export class TrackerManager {
-    #connections: ConnectionManger;
-    #trackers: Record<string, Promise<Tracker>>;
-    #trackerConnection: Record<string, Promise<Connection>>;
-
-    constructor(connections: ConnectionManger) {
-        this.#connections = connections;
-        this.#trackers = {};
-        this.#trackerConnection = {};
-    }
-
-    get(slot: Slot): Promise<Tracker> {
-        const connectionPromise = this.#connections.get(slot);
-
-        if (!(slot.id in this.#trackers) || connectionPromise !== this.#trackerConnection[slot.id]) {
-            this.#trackerConnection[slot.id] = connectionPromise;
-            this.#trackers[slot.id] = (async () => {
-                const connection = await connectionPromise;
-                const gameData = games[connection.game] ? await games[connection.game]() : null;
-
-                return new Tracker(connection, gameData);
-            })();
-        }
-
-        return this.#trackers[slot.id];
+export class TrackerFactory {
+    async create(connection: Connection): Promise<Tracker> {
+        return new Tracker(
+            connection,
+            games[connection.game] ? await games[connection.game]() : null,
+        );
     }
 }
