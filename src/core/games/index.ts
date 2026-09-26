@@ -15,6 +15,7 @@ export interface GameData {
 export default {
     '2 Ship 2 Harkinian (MM)': () => import('./2Ship2Harkinian'),
     'Autopelago': () => import('./autopelago'),
+    'Pokemon Red and Blue': () => import('./pokemonRedAndBlue'),
     'Rayman 2': () => import('./rayman2'),
     'Ship of Harkinian': () => import('./shipOfHarkinian'),
     'Yacht Dice': () => import('./yachtDice'),
