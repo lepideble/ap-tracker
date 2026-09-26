@@ -7,8 +7,8 @@ export interface AddSlotProps {
 }
 
 export default function AddSlot({ slots }: AddSlotProps) {
-    const action = useCallback(({ label, host, slot, password }: Record<string, any>) => {
-        slots.add(label || null, host, slot, password || null)
+    const action = useCallback(async ({ label, host, slot, password }: Record<string, any>) => {
+        await slots.add(label || null, host, slot, password || null)
     }, [slots]);
 
     return (

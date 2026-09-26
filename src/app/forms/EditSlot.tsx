@@ -11,16 +11,14 @@ export interface EditSlotProps {
 
 export default function EditSlot({ id, slots }: EditSlotProps) {
     const initialData = slots.value.find((slot) => slot.id === id);
-    const action = useCallback(({ label, host, slot, password }: Record<string, any>) => {
-        slots.update(id, label || null, host, slot, password || null)
+    const action = useCallback(async ({ label, host, slot, password }: Record<string, any>) => {
+        await slots.update(id, label || null, host, slot, password || null)
     }, [id, slots]);
 
     return (
-        <Form action={action}>
+        <Form action={action} onSuccess={navigate(id)}>
             <Toolbar>
-                <IconButton action={() => slots.remove(id)} label="Delete slot" onSuccess={navigate('')}>
-                    <TrashIcon />
-                </IconButton>
+                <IconButton action={() => slots.remove(id)} icon={<TrashIcon />} label="Delete slot" onSuccess={navigate('')} />
             </Toolbar>
             <label>
                 Name (only for display)

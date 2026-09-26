@@ -1,5 +1,4 @@
 import type { Reactive } from '#lib/reactive';
-import type { Slot } from './Slot';
 
 export interface Player {
     id: number;
@@ -42,6 +41,12 @@ export const HINT_STATUSES = {
     Found: 40,
 } as const;
 
+export interface ConnectionOptions {
+    host: string;
+    name: string;
+    password: string|null;
+}
+
 export interface Connection {
     game: string;
     player: Player;
@@ -50,26 +55,44 @@ export interface Connection {
     itemTypes: string[];
     hints: Reactive<Hint[]>;
     slotData: Record<string, any>;
+    close(): void;
 }
 
 export interface Client {
-    connect(slot: Slot): Promise<Connection>
+    connect(options: ConnectionOptions): Promise<Connection>
 }
 
 export class ConnectionManger {
     #client: Client;
+    #urls: Record<string, string>;
     #connections: Record<string, Promise<Connection>>;
 
     constructor(client: Client) {
         this.#client = client;
+        this.#urls = {};
         this.#connections = {};
     }
 
-    get(slot: Slot): Promise<Connection> {
-        if (!(slot.id in this.#connections)) {
-            this.#connections[slot.id] = this.#client.connect(slot);
+    get(id: string, options: ConnectionOptions): Promise<Connection> {
+        const url = this.#url(options);
+
+        if (id in this.#urls && this.#urls[id] !== url) {
+            this.#connections[id]
+                .then((connection) => connection.close())
+                .catch((error) => console.error(error));
+
+            delete this.#connections[id];
         }
 
-        return this.#connections[slot.id];
+        if (!(id in this.#connections)) {
+            this.#urls[id] = url;
+            this.#connections[id] = this.#client.connect(options);
+        }
+
+        return this.#connections[id];
+    }
+
+    #url({ host, name, password }: ConnectionOptions): string {
+        return `${name}${password ? `:${password}` : ''}@${host}`;
     }
 }

@@ -16,14 +16,14 @@ export interface TrackerProps {
 export default function Tracker({ core, path, slot }: TrackerProps) {
     return (
         <>
-            <Header actions={<IconButton action={navigate(`${slot.id}/settings`)} label="Settings"><Cog6ToothIcon strokeWidth={2} /></IconButton>}>
+            <Header actions={<IconButton action={navigate(`${slot.id}/settings`)} icon={<Cog6ToothIcon strokeWidth={2} />} label="Settings" />}>
                 <Button action={navigate(`${slot.id}/locations`)}>Locations</Button>
                 <Button action={navigate(`${slot.id}/items`)}>Items</Button>
             </Header>
             <Scrollable>
                 <Suspense fallback={<Loader />}>
-                    {path === '/locations' || !path? <Locations core={core} slot={slot} /> : null}
-                    {path === '/items' ? <Items core={core} slot={slot} /> : null}
+                    {path === '/locations' || !path? <Locations slot={slot} /> : null}
+                    {path === '/items' ? <Items slot={slot} /> : null}
                     {path === '/settings' ? <EditSlot id={slot.id} slots={core.slots} /> : null}
                 </Suspense>
             </Scrollable>

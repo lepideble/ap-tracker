@@ -20,7 +20,7 @@ export default function App({ core }: AppProps) {
     return (
         <Root>
             <SideBar>
-                <Header actions={<IconButton action={navigate('add')} label="Add slot"><PlusIcon strokeWidth={2} /></IconButton>}>
+                <Header actions={<IconButton action={navigate('add')} icon={<PlusIcon strokeWidth={2} />} label="Add slot" />}>
                     Slots
                 </Header>
                 <Scrollable>
