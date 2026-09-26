@@ -2,20 +2,21 @@ import { compute, type Callback, type Reactive, type Subscriber } from '#lib/rea
 import { ConnectionManger, type ConnectionOptions } from './Connection';
 import { type Tracker, type TrackerFactory } from './Tracker';
 
-export interface Slot extends ConnectionOptions {
-    id: string;
-    label: string;
-    tracker: Promise<Tracker>;
-}
-
-export interface SlotData extends ConnectionOptions {
+export interface SlotSettings extends ConnectionOptions {
     id: string;
     label: string|null;
 }
 
-export interface SlotRepository extends Reactive<SlotData[]> {
-    add(slot: SlotData): void;
-    update(slot: SlotData): void;
+export interface Slot {
+    id: string;
+    label: string;
+    settings: SlotSettings;
+    tracker: Promise<Tracker>;
+}
+
+export interface SlotRepository extends Reactive<SlotSettings[]> {
+    add(slot: SlotSettings): void;
+    update(slot: SlotSettings): void;
     remove(id: string): void;
 }
 
@@ -36,9 +37,7 @@ export class SlotManager {
         this.#value = compute((slots) => slots.map((data) => ({
             id: data.id,
             label: data.label ?? `${data.name}@${data.host}`,
-            host: data.host,
-            name: data.name,
-            password: data.password,
+            settings: data,
             get tracker(): Promise<Tracker> {
                 if (!(data.id in trackers)) {
                     trackers[data.id] = connections.get(data.id, data).then(trackerFactory.create);

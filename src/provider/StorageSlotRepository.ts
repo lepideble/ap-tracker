@@ -1,11 +1,11 @@
-import { type SlotData, type SlotRepository } from '#core';
+import { type SlotRepository, type SlotSettings } from '#core';
 import { type Callback } from '#lib/reactive';
 
 export default class StorageSlotRepository implements SlotRepository {
     #storage: Storage;
     #key: string
 
-    #value: SlotData[];
+    #value: SlotSettings[];
     #subscribers: Callback[];
 
     #listener: (event: StorageEvent) => void;
@@ -49,7 +49,7 @@ export default class StorageSlotRepository implements SlotRepository {
         }
     }
 
-    add(slot: SlotData) {
+    add(slot: SlotSettings) {
         const slots = this.#getData();
 
         slots.push(slot);
@@ -58,7 +58,7 @@ export default class StorageSlotRepository implements SlotRepository {
         this.#setValue(slots);
     }
 
-    update(slot: SlotData) {
+    update(slot: SlotSettings) {
         const slots = this.#getData();
 
         const index = slots.findIndex(({ id }) => id === slot.id);
@@ -88,7 +88,7 @@ export default class StorageSlotRepository implements SlotRepository {
         this.#setValue(slots);
     }
 
-    #getData(): SlotData[] {
+    #getData(): SlotSettings[] {
         const data = this.#storage.getItem(this.#key);
 
         if (!data) {
@@ -98,11 +98,11 @@ export default class StorageSlotRepository implements SlotRepository {
         return JSON.parse(data);
     }
 
-    #setData(Slots: SlotData[]) {
+    #setData(Slots: SlotSettings[]) {
         this.#storage.setItem(this.#key, JSON.stringify(Slots));
     }
 
-    #setValue(value: SlotData[]) {
+    #setValue(value: SlotSettings[]) {
         this.#value = value;
 
         for (const subscriber of this.#subscribers) {

@@ -1,8 +1,8 @@
-import { Client as ArchieplagoJs, Hint as ArchiepalgoJsHint, type NetworkHint, type ConnectionOptions } from 'archipelago.js';
-import { type Client, type Item, type Location, type Hint, type Slot } from '#core';
+import * as ArchipelagoJs from 'archipelago.js';
+import { type Client, type ConnectionOptions , type Item, type Location, type Hint } from '#core';
 import { makeState, type Reactive } from '#lib/reactive';
 
-const formatHint = (hint: ArchiepalgoJsHint) => ({
+const formatHint = (hint: ArchipelagoJs.Hint) => ({
     location: {
         id: hint.item.locationId,
         name: hint.item.locationName,
@@ -26,15 +26,15 @@ const formatHint = (hint: ArchiepalgoJsHint) => ({
 });
 
 export default class ArchipelagoJsClient implements Client {
-    async connect(slot: Slot) {
-        const client = new ArchieplagoJs();
+    async connect(slot: ConnectionOptions) {
+        const client = new ArchipelagoJs.Client();
 
         await this.#setUpCache(client);
 
         const [items, itemsReady] = await this.#setUpItems(client);
         const [hints, hintsReady] = await this.#setUpHints(client);
 
-        let options: ConnectionOptions = {
+        let options: ArchipelagoJs.ConnectionOptions = {
             tags: ['Tracker'],
         };
 
@@ -94,7 +94,7 @@ export default class ArchipelagoJsClient implements Client {
         };
     }
 
-    async #setUpCache(client: ArchieplagoJs): Promise<void> {
+    async #setUpCache(client: ArchipelagoJs.Client): Promise<void> {
         try {
             const cache = await window.caches.open('datapackage');
 
@@ -128,7 +128,7 @@ export default class ArchipelagoJsClient implements Client {
         }
     }
 
-    async #setUpItems(client: ArchieplagoJs): Promise<[Reactive<Item[]>, Promise<void>]> {
+    async #setUpItems(client: ArchipelagoJs.Client): Promise<[Reactive<Item[]>, Promise<void>]> {
         const [items, setItems] = makeState<Item[]>([]);
 
         client.items.on('itemsReceived', () => {
@@ -138,7 +138,7 @@ export default class ArchipelagoJsClient implements Client {
         return [items, Promise.resolve()];
     }
 
-    async #setUpHints(client: ArchieplagoJs): Promise<[Reactive<Hint[]>, Promise<void>]> {
+    async #setUpHints(client: ArchipelagoJs.Client): Promise<[Reactive<Hint[]>, Promise<void>]> {
         const [hints, setHints] = makeState<Hint[]>([]);
         const { promise: hintsReady, resolve: resolveHintsReady } = Promise.withResolvers<void>();
 
@@ -147,10 +147,10 @@ export default class ArchipelagoJsClient implements Client {
 
             client.storage
                 .notify([storageKey], (_, data) => {
-                    setHints((data as NetworkHint[]).map((hint) => formatHint(new ArchiepalgoJsHint(client, hint))))
+                    setHints((data as ArchipelagoJs.NetworkHint[]).map((hint) => formatHint(new ArchipelagoJs.Hint(client, hint))))
                 })
                 .then((data) => {
-                    setHints((data[storageKey] as NetworkHint[]).map((hint) => formatHint(new ArchiepalgoJsHint(client, hint))));
+                    setHints((data[storageKey] as ArchipelagoJs.NetworkHint[]).map((hint) => formatHint(new ArchipelagoJs.Hint(client, hint))));
                     resolveHintsReady();
                 })
                 .catch((error) => {

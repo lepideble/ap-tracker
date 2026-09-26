@@ -10,7 +10,7 @@ export interface EditSlotProps {
 }
 
 export default function EditSlot({ id, slots }: EditSlotProps) {
-    const initialData = slots.value.find((slot) => slot.id === id);
+    const initialData = slots.value.find((slot) => slot.id === id)?.settings;
     const action = useCallback(async ({ label, host, slot, password }: Record<string, any>) => {
         await slots.update(id, label || null, host, slot, password || null)
     }, [id, slots]);
