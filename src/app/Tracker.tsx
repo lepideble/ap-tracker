@@ -1,11 +1,22 @@
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
-import { Suspense } from 'react';
+import { type ReactNode, Suspense } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { navigate } from '#actions';
 import { Button, Header, IconButton, Loader, Scrollable } from '#components';
 import { type Core, type Slot } from '#core';
 import EditSlot from './forms/EditSlot';
 import Items from './Items';
 import Locations from './Locations';
+
+function Wrapper({ children }: { children: ReactNode }) {
+    return (
+        <ErrorBoundary fallback={<div>Error connecting to server</div>}>
+            <Suspense fallback={<Loader />}>
+                {children}
+            </Suspense>
+        </ErrorBoundary>
+    )
+}
 
 export interface TrackerProps {
     core: Core;
@@ -21,11 +32,9 @@ export default function Tracker({ core, path, slot }: TrackerProps) {
                 <Button action={navigate(`${slot.id}/items`)}>Items</Button>
             </Header>
             <Scrollable>
-                <Suspense fallback={<Loader />}>
-                    {path === '/locations' || !path? <Locations slot={slot} /> : null}
-                    {path === '/items' ? <Items slot={slot} /> : null}
-                    {path === '/settings' ? <EditSlot id={slot.id} slots={core.slots} /> : null}
-                </Suspense>
+                {path === '/locations' || !path? <Wrapper><Locations slot={slot} /></Wrapper> : null}
+                {path === '/items' ? <Wrapper><Items slot={slot} /></Wrapper> : null}
+                {path === '/settings' ? <EditSlot id={slot.id} slots={core.slots} /> : null}
             </Scrollable>
         </>
     );
