@@ -10,7 +10,8 @@
     "@linaria/react": "^8.1.1",
     "archipelago.js": "^2.1.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-error-boundary": "^6.1.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
