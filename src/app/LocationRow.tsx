@@ -15,7 +15,7 @@ const Item = ({ location }: { location: TrackerLocation }) => {
     }
 
     if (item.useful) {
-        classification.push('Usefull');
+        classification.push('Useful');
     }
 
     if (item.trap) {
