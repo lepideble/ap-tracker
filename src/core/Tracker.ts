@@ -174,6 +174,9 @@ export namespace TrackerLocation {
         id: number;
         name: string;
         player: Player;
+        advancement: boolean;
+        useful: boolean;
+        trap: boolean;
     }
 
     export type Status = typeof TRACKER_LOCATION_STATUSES[keyof typeof TRACKER_LOCATION_STATUSES];
