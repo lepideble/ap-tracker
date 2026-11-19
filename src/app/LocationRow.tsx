@@ -1,6 +1,32 @@
 import { useReactive } from '#components';
 import { TRACKER_LOCATION_STATUSES, type TrackerLocation } from '#core';
 
+const Item = ({ location }: { location: TrackerLocation }) => {
+    const item = useReactive(location.item);
+
+    if (!item) {
+        return null;
+    }
+
+    const classification = [];
+
+    if (item.advancement) {
+        classification.push('Advancement');
+    }
+
+    if (item.useful) {
+        classification.push('Usefull');
+    }
+
+    if (item.trap) {
+        classification.push('Trap');
+    }
+
+    const title = classification.length ? classification.join(', ') : 'Filler';
+
+    return <span title={title}>{item.name}</span>
+}
+
 const Status = ({ location }: { location: TrackerLocation }) => {
     const value = useReactive(location.status);
 
@@ -33,7 +59,7 @@ export default function LocationRow({ location }: LocationRowProps) {
     return (
         <tr key={location.id}>
             <td>{location.name}</td>
-            <td>{item?.name}</td>
+            <td><Item location={location} /></td>
             <td>{item?.player?.name}</td>
             <td><Status location={location} /></td>
         </tr>
