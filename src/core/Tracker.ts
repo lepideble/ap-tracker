@@ -2,15 +2,29 @@ import { combine, compute, makeState, type Reactive } from '#lib/reactive';
 import type { Connection, Hint, Player } from './Connection';
 import games, { type GameData } from './games';
 
+export interface TrackerOptions {
+    guessHintStatus?: boolean;
+}
+
+const OPTIONS_DEFAULTS = {
+    guessHintStatus: false,
+};
+
 export class Tracker {
     #itemsData: ReturnType<NonNullable<GameData['items']>>;
     #regionsData: NonNullable<GameData['regions']>|null;
     #locations: TrackerLocation[];
     #items: TrackerItem[];
+    #options: Required<TrackerOptions>;
 
-    constructor(connection: Connection, gameData: GameData|null) {
+    constructor(connection: Connection, gameData: GameData|null, options: TrackerOptions = {}) {
         this.#itemsData = gameData?.items ? gameData.items(connection) : {};
         this.#regionsData = gameData?.regions ?? null;
+
+        this.#options = {
+            ...OPTIONS_DEFAULTS,
+            ...options,
+        };
 
         // Create reactive hint for all locations
         const hints: Record<number, Reactive<Hint|null>> = {};
@@ -55,7 +69,26 @@ export class Tracker {
                 }
 
                 if (hint) {
-                    return hint.status;
+                    if (hint.status) {
+                        return hint.status;
+                    }
+
+                    if (this.#options.guessHintStatus) {
+                        if (hint.item.advancement) {
+                            return TRACKER_LOCATION_STATUSES.Priority;
+                        }
+
+                        if (hint.item.useful) {
+                            // Hints don't have a status that says "useful but not priority" so keep it as not found
+                            return TRACKER_LOCATION_STATUSES.NotFound;
+                        }
+
+                        if (hint.item.trap) {
+                            return TRACKER_LOCATION_STATUSES.Avoid;
+                        }
+
+                        return TRACKER_LOCATION_STATUSES.NoPriority;
+                    }
                 }
 
                 return TRACKER_LOCATION_STATUSES.NotFound;
@@ -219,10 +252,11 @@ export interface TrackerItem {
 }
 
 export class TrackerFactory {
-    async create(connection: Connection): Promise<Tracker> {
+    async create(connection: Connection, options?: TrackerOptions): Promise<Tracker> {
         return new Tracker(
             connection,
             games[connection.game] ? await games[connection.game]() : null,
+            options,
         );
     }
 }

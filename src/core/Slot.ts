@@ -1,10 +1,11 @@
 import { compute, type Callback, type Reactive, type Subscriber } from '#lib/reactive';
 import { ConnectionManger, type ConnectionOptions } from './Connection';
-import { type Tracker, type TrackerFactory } from './Tracker';
+import { type Tracker, type TrackerFactory, type TrackerOptions } from './Tracker';
 
 export interface SlotSettings extends ConnectionOptions {
     id: string;
     label: string|null;
+    options?: TrackerOptions;
 }
 
 export interface Slot {
@@ -40,7 +41,7 @@ export class SlotManager {
             settings: data,
             get tracker(): Promise<Tracker> {
                 if (!(data.id in trackers)) {
-                    trackers[data.id] = connections.get(data.id, data).then(trackerFactory.create);
+                    trackers[data.id] = connections.get(data.id, data).then((connection) => trackerFactory.create(connection, data.options));
                 }
 
                 return trackers[data.id];
@@ -56,20 +57,20 @@ export class SlotManager {
         return this.#value.subscribe(callback);
     }
 
-    async add(label: string|null, host: string, name: string, password: string|null = null): Promise<void> {
+    async add(label: string|null, host: string, name: string, password: string|null = null, options?: TrackerOptions): Promise<void> {
         const id = crypto.randomUUID();
 
         const connection = await this.#connections.get(id, { host, name, password });
 
-        this.#trackers[id] = this.#trackerFactory.create(connection);
-        this.#repository.add({ id, label, host, name, password });
+        this.#trackers[id] = this.#trackerFactory.create(connection, options);
+        this.#repository.add({ id, label, host, name, password, options });
     }
 
-    async update(id: string, label: string|null, host: string, name: string, password: string|null = null): Promise<void> {
+    async update(id: string, label: string|null, host: string, name: string, password: string|null = null, options?: TrackerOptions): Promise<void> {
         const connection = await this.#connections.get(id, { host, name, password });
 
-        this.#trackers[id] = this.#trackerFactory.create(connection);
-        this.#repository.update({ id, label, host, name, password });
+        this.#trackers[id] = this.#trackerFactory.create(connection, options);
+        this.#repository.update({ id, label, host, name, password, options });
     }
 
     remove(id: string) {
